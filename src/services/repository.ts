@@ -6,14 +6,19 @@ import { format, addDays, startOfDay } from 'date-fns';
  * Fetch all active leagues
  */
 export async function getLeagues(): Promise<League[]> {
-  const result = await query(
-    `SELECT id, code, name, country, season, is_active as "isActive",
+  try {
+    const result = await query(
+      `SELECT id, code, name, country, season, is_active as "isActive",
       created_at as "createdAt", updated_at as "updatedAt"
      FROM leagues
      WHERE is_active = true
      ORDER BY name`
-  );
-  return result.rows as League[];
+    );
+    return result.rows as League[];
+  } catch (err: any) {
+    console.error('getLeagues error:', err?.message || err);
+    return [];
+  }
 }
 
 /**
@@ -24,8 +29,8 @@ export async function getUpcomingMatches(daysAhead: number = 7): Promise<
 > {
   const startDate = startOfDay(new Date());
   const endDate = addDays(startDate, daysAhead);
-
-  const result = await query(
+  try {
+    const result = await query(
     `SELECT 
       m.id, m.league_id as "leagueId", m.home_team_id as "homeTeamId", 
       m.away_team_id as "awayTeamId", m.kickoff_time as "kickoffTime",
@@ -47,9 +52,9 @@ export async function getUpcomingMatches(daysAhead: number = 7): Promise<
        AND m.status = 'UPCOMING'
      ORDER BY m.kickoff_time ASC`,
     [startDate, endDate]
-  );
+    );
 
-  return result.rows.map((row: any) => ({
+    return result.rows.map((row: any) => ({
     id: row.id,
     leagueId: row.leagueId,
     homeTeamId: row.homeTeamId,
@@ -84,6 +89,10 @@ export async function getUpcomingMatches(daysAhead: number = 7): Promise<
       updatedAt: new Date(),
     },
   }));
+  } catch (err: any) {
+    console.error('getUpcomingMatches error:', err?.message || err);
+    return [];
+  }
 }
 
 /**
@@ -92,7 +101,8 @@ export async function getUpcomingMatches(daysAhead: number = 7): Promise<
 export async function getFeaturedMatches(limit: number = 5): Promise<
   (Match & { homeTeam: Team; awayTeam: Team; league: League })[]
 > {
-  const result = await query(
+  try {
+    const result = await query(
     `SELECT 
       m.id, m.league_id as "leagueId", m.home_team_id as "homeTeamId", 
       m.away_team_id as "awayTeamId", m.kickoff_time as "kickoffTime",
@@ -114,9 +124,9 @@ export async function getFeaturedMatches(limit: number = 5): Promise<
      ORDER BY m.kickoff_time ASC
      LIMIT $1`,
     [limit]
-  );
+    );
 
-  return result.rows.map((row: any) => ({
+    return result.rows.map((row: any) => ({
     id: row.id,
     leagueId: row.leagueId,
     homeTeamId: row.homeTeamId,
@@ -151,6 +161,10 @@ export async function getFeaturedMatches(limit: number = 5): Promise<
       updatedAt: new Date(),
     },
   }));
+  } catch (err: any) {
+    console.error('getFeaturedMatches error:', err?.message || err);
+    return [];
+  }
 }
 
 /**

@@ -29,8 +29,8 @@ export async function query(
   text: string,
   params?: unknown[]
 ): Promise<{ rows: any[]; rowCount: number | null }> {
-  const client = getPool();
   try {
+    const client = getPool();
     const result = await client.query(text, params as any[]);
     return {
       rows: result.rows,

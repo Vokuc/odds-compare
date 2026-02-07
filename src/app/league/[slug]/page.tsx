@@ -81,10 +81,26 @@ export default async function LeaguePage({ params }: Props) {
     <div className="max-w-5xl mx-auto px-4 py-8">
       <h1 className="text-2xl font-bold mb-4">{slug.replace('-', ' ').toUpperCase()}</h1>
 
+      {/* Debug / status banner */}
+      {!process.env.ODDS_API_KEY && (
+        <div className="mb-4 p-3 bg-yellow-100 text-yellow-800 rounded">
+          ODDS_API_KEY is not set — set it in <strong>.env.local</strong> (see .env.local.example).
+        </div>
+      )}
+
+      <div className="mb-4 text-sm text-gray-600">
+        Matches found: {displayMatches.length} · Odds entries: {odds.length}
+      </div>
+
       {serverError ? (
         <div className="text-red-600">Server error: {serverError}</div>
       ) : displayMatches.length === 0 ? (
-        <p className="text-gray-600">No upcoming matches found for this league.</p>
+        <div>
+          <p className="text-gray-600">No upcoming matches found for this league.</p>
+          {!process.env.ODDS_API_KEY && (
+            <p className="text-xs text-gray-500 mt-2">Tip: add your the-odds-api key to <strong>.env.local</strong> and restart the dev server.</p>
+          )}
+        </div>
       ) : (
         <div className="space-y-4">
           {displayMatches.map((match) => {
@@ -93,23 +109,63 @@ export default async function LeaguePage({ params }: Props) {
               <div key={match.id} className="bg-white p-4 rounded border">
                 <MatchCard match={match} showLeague={false} />
 
-                <div className="mt-3">
-                  <h4 className="text-sm font-semibold mb-1">Odds</h4>
-                  {matchOdds.length === 0 ? (
-                    <p className="text-xs text-gray-500">No odds available.</p>
-                  ) : (
-                    <div className="flex gap-3 flex-wrap">
-                      {matchOdds.map((o) => (
-                        <div key={o.bookmakerId} className="text-xs border rounded px-2 py-1">
-                          <div className="font-medium">{o.bookmakerId}</div>
-                          <div className="text-gray-700">H: {o.odds.home ?? '-'}</div>
-                          <div className="text-gray-700">D: {o.odds.draw ?? '-'}</div>
-                          <div className="text-gray-700">A: {o.odds.away ?? '-'}</div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                  <div className="mt-3">
+                    <h4 className="text-sm font-semibold mb-2">Odds</h4>
+                    {matchOdds.length === 0 ? (
+                      <p className="text-xs text-gray-500">No odds available.</p>
+                    ) : (
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm border-collapse">
+                          <thead>
+                            <tr className="text-left text-xs text-gray-500 border-b">
+                              <th className="py-2">Bookmaker</th>
+                              <th className="py-2">Home</th>
+                              <th className="py-2">Draw</th>
+                              <th className="py-2">Away</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {(() => {
+                              // compute best prices for this match
+                              const prices = matchOdds.reduce(
+                                (acc, cur) => {
+                                  const h = typeof cur.odds.home === 'number' ? cur.odds.home : acc.home;
+                                  const d = typeof cur.odds.draw === 'number' ? cur.odds.draw : acc.draw;
+                                  const a = typeof cur.odds.away === 'number' ? cur.odds.away : acc.away;
+                                  return {
+                                    home: Math.max(acc.home ?? 0, h ?? 0),
+                                    draw: Math.max(acc.draw ?? 0, d ?? 0),
+                                    away: Math.max(acc.away ?? 0, a ?? 0),
+                                  };
+                                },
+                                { home: 0, draw: 0, away: 0 } as { home: number; draw: number; away: number }
+                              );
+
+                              return matchOdds.map((o) => {
+                                const homeVal = o.odds.home ?? null;
+                                const drawVal = o.odds.draw ?? null;
+                                const awayVal = o.odds.away ?? null;
+                                return (
+                                  <tr key={o.bookmakerId} className="border-b last:border-b-0">
+                                    <td className="py-2 align-top font-medium text-gray-800">{o.bookmakerId}</td>
+                                    <td className={`py-2 align-top ${homeVal === prices.home ? 'text-green-700 font-semibold' : 'text-gray-700'}`}>
+                                      {homeVal ?? '-'}
+                                    </td>
+                                    <td className={`py-2 align-top ${drawVal === prices.draw ? 'text-green-700 font-semibold' : 'text-gray-700'}`}>
+                                      {drawVal ?? '-'}
+                                    </td>
+                                    <td className={`py-2 align-top ${awayVal === prices.away ? 'text-green-700 font-semibold' : 'text-gray-700'}`}>
+                                      {awayVal ?? '-'}
+                                    </td>
+                                  </tr>
+                                );
+                              });
+                            })()}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
+                  </div>
               </div>
             );
           })}
