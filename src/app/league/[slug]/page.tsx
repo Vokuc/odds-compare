@@ -20,14 +20,6 @@ export default async function LeaguePage({ params }: Props) {
   try {
     // Fetch upcoming matches (next 14 days)
     const matches = await getUpcomingMatches(14);
-    console.log('[LeaguePage] fetched matches count:', Array.isArray(matches) ? matches.length : 0);
-    if (Array.isArray(matches) && matches.length > 0) {
-      try {
-        console.log('[LeaguePage] sample match:', JSON.stringify(matches[0], null, 2));
-      } catch (e) {
-        console.log('[LeaguePage] sample match (stringify failed)');
-      }
-    }
 
     // Filter by league code or name matching slug
     const filtered = matches.filter((m) => {
@@ -63,14 +55,6 @@ export default async function LeaguePage({ params }: Props) {
       });
       const eventIds = displayMatches.map((e: any) => e.id.toString());
       odds = eventIds.length > 0 ? await oddsProvider.fetchOdds(eventIds) : [];
-    }
-    console.log('[LeaguePage] fetched odds count:', Array.isArray(odds) ? odds.length : 0);
-    if (Array.isArray(odds) && odds.length > 0) {
-      try {
-        console.log('[LeaguePage] sample odds:', JSON.stringify(odds[0], null, 2));
-      } catch (e) {
-        console.log('[LeaguePage] sample odds (stringify failed)');
-      }
     }
   } catch (err: any) {
     serverError = (err && err.message) || String(err);

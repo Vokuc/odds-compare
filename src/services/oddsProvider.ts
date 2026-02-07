@@ -62,14 +62,7 @@ class OddsApiProvider implements OddsProvider {
           markets: 'h2h',
         },
       });
-      console.log('[OddsApiProvider] fetched events count:', Array.isArray(response.data) ? response.data.length : 0);
-      if (Array.isArray(response.data) && response.data.length > 0) {
-        try {
-          console.log('[OddsApiProvider] sample event:', JSON.stringify(response.data[0], null, 2));
-        } catch (e) {
-          console.log('[OddsApiProvider] sample event (stringify failed)');
-        }
-      }
+      // production: avoid noisy logs
       const oddsData: RawOddsData[] = [];
       const includeAll = !matchIds || matchIds.length === 0;
       for (const event of response.data) {
@@ -79,22 +72,21 @@ class OddsApiProvider implements OddsProvider {
         } else {
           console.log(`[OddsApiProvider] event matched id=${event.id}`);
         }
-        for (const bookmaker of event.bookmakers) {
-          const h2hMarket = bookmaker.markets.find(m => m.key === 'h2h');
-          if (!h2hMarket) continue;
-          oddsData.push({
-            matchId: event.id,
-            bookmakerId: bookmaker.key,
-            market: '1X2',
-            odds: {
-              home: h2hMarket.outcomes.find(o => o.name === 'Home')?.price,
-              draw: h2hMarket.outcomes.find(o => o.name === 'Draw')?.price,
-              away: h2hMarket.outcomes.find(o => o.name === 'Away')?.price,
-            },
-          });
-        }
+          for (const bookmaker of event.bookmakers) {
+            const h2hMarket = bookmaker.markets.find((m: any) => m.key === 'h2h');
+            if (!h2hMarket) continue;
+            oddsData.push({
+              matchId: event.id,
+              bookmakerId: bookmaker.key,
+              market: '1X2',
+              odds: {
+                home: h2hMarket.outcomes.find((o: any) => o.name === 'Home')?.price,
+                draw: h2hMarket.outcomes.find((o: any) => o.name === 'Draw')?.price,
+                away: h2hMarket.outcomes.find((o: any) => o.name === 'Away')?.price,
+              },
+            });
+          }
       }
-      console.log('[OddsApiProvider] mapped odds entries:', oddsData.length);
       return oddsData;
     } catch (error) {
       console.error('Odds API error:', error);
@@ -137,7 +129,6 @@ class OddsApiProvider implements OddsProvider {
           isFeatured: false,
         });
       }
-      console.log('[OddsApiProvider] fetched events (mapped):', events.length);
       return events;
     } catch (err: any) {
       console.error('fetchEvents error:', err?.message || err);
@@ -157,7 +148,6 @@ class OddsApiProvider implements OddsProvider {
         status: 'UPCOMING',
         isFeatured: false,
       }));
-      console.log('[OddsApiProvider] returning mocked events count:', mock.length);
       return mock as any[];
     }
   }
