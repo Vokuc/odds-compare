@@ -1,33 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Football Odds Comparison & Value Finder Web App
 
-## Getting Started
+A production-ready, full-stack web application for comparing football match odds across multiple bookmakers and identifying value betting opportunities. Built with **Next.js**, **PostgreSQL**, and optimized for affiliate monetization.
 
-First, run the development server:
+## 🎯 Key Features
+
+### MVP (Current)
+- ✅ **Odds Aggregation**: Compare odds from multiple bookmakers
+- ✅ **Value Scoring**: Transparent, explainable value calculation
+- ✅ **Multi-Market Support**: 1X2, Over/Under 2.5, BTTS
+- ✅ **Homepage**: Featured matches and value picks
+- ✅ **League Pages**: Browse fixtures by competition
+- ✅ **Admin Dashboard**: Manage leagues, bookmakers, and featured matches
+- ✅ **Affiliate Links**: Geo-based bet routing with click tracking
+- ✅ **Responsive Design**: Mobile-first UI with Tailwind CSS
+- ✅ **SEO-Ready**: Server-side rendering, meta tags, structured data
+
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| **Frontend** | Next.js 15, React 19, Tailwind CSS |
+| **Backend** | Node.js, Next.js API Routes |
+| **Database** | PostgreSQL with migrations |
+| **Deployment** | Vercel-ready |
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js 18+**
+- **PostgreSQL 14+**
+
+### 1. Install Dependencies
+
+```bash
+npm install
+```
+
+### 2. Set Up Database
+
+Create a `.env.local` file:
+
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/odds_comparison
+ODDS_API_KEY=your_api_key
+NODE_ENV=development
+DEFAULT_COUNTRY=NG
+```
+
+Run migrations:
+
+```bash
+curl http://localhost:3000/api/migrations -X POST
+```
+
+### 3. Start Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 📁 Project Structure
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/
+├── app/
+│   ├── api/                  # API routes (fixtures, bookmakers, migrations)
+│   ├── admin/                # Admin dashboard
+│   ├── league/               # League pages
+│   ├── match/                # Match detail pages
+│   ├── how-it-works/         # Educational content
+│   ├── layout.tsx            # Root layout
+│   └── page.tsx              # Homepage
+├── components/               # Reusable UI components
+├── services/                 # Database & business logic
+├── lib/                      # Utilities (value calculation)
+├── db/                       # Database config & migrations
+└── types/                    # TypeScript types
+```
 
-## Learn More
+## 💡 Value Calculation
 
-To learn more about Next.js, take a look at the following resources:
+**Implied Probability = 1 / Decimal Odds**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+**Value % = (Your Odds / Market Average - 1) × 100**
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**Value Levels:**
+- HIGH: +5% or better (🚀)
+- MEDIUM: +1% to +5% (✓)
+- LOW: Below +1% (-)
+
+## 🔗 API Endpoints
+
+- `GET /api/fixtures` - Upcoming matches
+- `GET /api/bookmakers` - Active bookmakers
+- `POST /api/migrations` - Database setup
+
+## 🔐 Compliance
+
+✅ Responsible gambling notices  
+✅ 18+ disclaimer  
+✅ Affiliate disclosure  
+✅ No user data collection (MVP)  
+
+## 📈 Monetization
+
+- Affiliate links with tracking
+- Commission from bookmakers
+- Featured match placement
+
+## 🚀 Deployment
+
+```bash
+vercel deploy
+```
+
+Set `DATABASE_URL` in Vercel environment variables.
+
+## 📚 Learn More
+
+- [Next.js Documentation](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com)
+- [PostgreSQL](https://www.postgresql.org/docs)
+
+---
+
+**Status:** MVP Ready for Testing  
+**Last Updated:** February 2026
+
 
 ## Deploy on Vercel
 
