@@ -38,8 +38,12 @@ export interface ExternalEvent {
 
 import axios from 'axios';
 
-const API_KEY = '20f8f43996984768ceb481470156a538';
-const BASE_URL = 'https://api.the-odds-api.com/v4';
+const API_KEY = process.env.ODDS_API_KEY || '';
+const BASE_URL = process.env.ODDS_API_BASE_URL || 'https://api.the-odds-api.com/v4';
+
+if (!API_KEY) {
+  console.warn('[OddsApiProvider] WARNING: ODDS_API_KEY not set. Requests will fail or be rate-limited.');
+}
 
 class OddsApiProvider implements OddsProvider {
   async fetchOdds(matchIds: string[]): Promise<RawOddsData[]> {
